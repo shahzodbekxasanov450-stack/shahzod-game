@@ -1,18 +1,72 @@
-function gameLoop() {
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GTAV: Shahzod Drift</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+        body{background:#000; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; color:white}
+        .game{position:relative; width:95vw; max-width:600px; height:85vh; background:#222; border:5px solid #ffd700; overflow:hidden; border-radius:15px}
+        .road{position:absolute; width:100%; height:100%; background:linear-gradient(#333 50%, #3a3a3a 50%); background-size:100% 100px; animation:move 0.2s linear infinite}
+        @keyframes move{from{background-position-y:0} to{background-position-y:100px}}
+        .car, .enemy{position:absolute; width:60px; height:100px; font-size:50px; display:flex; flex-direction:column; align-items:center}
+        .car{bottom:20px; left:45%; filter:drop-shadow(0 0 15px #ffd700)}
+        .enemy{top:-120px}
+        .ui{position:absolute; top:15px; width:100%; display:flex; justify-content:space-around; z-index:10; font-size:20px; color:#ff0}
+        #startBtn{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px 40px; background:#ffd700; border:none; border-radius:10px; cursor:pointer; font-weight:bold; font-size:20px; z-index:20}
+        .controls{position:absolute; bottom:20px; width:100%; display:flex; justify-content:space-between; padding:0 30px}
+        .btn{width:80px; height:80px; border-radius:50%; border:2px solid #fff; background:rgba(255,255,255,0.2); color:#fff; font-size:40px}
+    </style>
+</head>
+<body>
+<div class="game">
+    <div class="road"></div>
+    <div class="ui"><div>Ball: <span id="score">0</span></div><div>SHAHZOD DRIFT</div></div>
+    <div id="player" class="car" style="left:150px">🏎️</div>
+    <div id="enemy" class="enemy" style="top:-120px; left:150px">🚓</div>
+    <button id="startBtn">START</button>
+    <div class="controls">
+        <button class="btn" onclick="moveCar(-50)">⬅️</button>
+        <button class="btn" onclick="moveCar(50)">➡️</button>
+    </div>
+</div>
+<script>
+    const player = document.getElementById('player');
+    const enemy = document.getElementById('enemy');
+    const scoreEl = document.getElementById('score');
+    const startBtn = document.getElementById('startBtn');
+    let posX = 150, enemyY = -120, enemyX = 150, score = 0, speed = 8, active = false;
+
+    function moveCar(val) {
+        if(active) {
+            posX += val;
+            if(posX < 0) posX = 0;
+            if(posX > 300) posX = 300;
+            player.style.left = posX + 'px';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowLeft') moveCar(-50);
+        if(e.key === 'ArrowRight') moveCar(50);
+    });
+
+    function gameLoop() {
         if(!active) return;
         enemyY += speed;
-        if(enemyY > window.innerHeight) {
-            enemyY = -200;
-            enemyX = 15 + Math.random() * 70;
-            let res = uzCars[Math.floor(Math.random()*uzCars.length)];
-            enemy.innerHTML = res.i + <div class="car-name">${res.n}</div>;
-            enemy.style.left = enemyX + '%';
+        if(enemyY > 600) {
+            enemyY = -120;
+            enemyX = Math.random() * 250;
+            enemy.style.left = enemyX + 'px';
             score += 100; speed += 0.2; scoreEl.innerText = score;
         }
         enemy.style.top = enemyY + 'px';
-        let p = player.getBoundingClientRect(); let e = enemy.getBoundingClientRect();
+        let p = player.getBoundingClientRect();
+        let e = enemy.getBoundingClientRect();
         if (!(p.right < e.left  p.left > e.right  p.bottom < e.top || p.top > e.bottom)) {
-            alert("BUSTED! Ballingiz: $" + score); location.reload();
+            alert("AVARIYA! Ballingiz: $" + score);
+            location.reload();
         }
         requestAnimationFrame(gameLoop);
     }
