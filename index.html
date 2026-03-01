@@ -1,70 +1,60 @@
-<!DOCTYPE html><html lang="uz">
+<!DOCTYPE html>
+<html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shahzod Xasanov Game</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-body{background:#111;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;color:white;touch-action:none;}
-.game{position:relative;width:100%;max-width:400px;height:600px;background:#222;border:4px solid #444;overflow:hidden}
-.road{position:absolute;width:100%;height:100%;background:linear-gradient(#333 50%,#383838 50%);background-size:100% 80px;animation:move 0.15s linear infinite}
-@keyframes move{from{background-position-y:0}to{background-position-y:80px}}
-.car,.enemy{position:absolute;width:50px;height:80px;font-size:45px;display:flex;flex-direction:column;align-items:center;}
-.car{bottom:20px;left:150px;filter:drop-shadow(0 0 15px cyan);}
-.enemy{top:-100px}
-.car-name{font-size:10px;background:rgba(0,0,0,0.7);padding:2px 5px;border-radius:3px;margin-top:-5px}
-.ui{position:absolute;top:10px;width:100%;display:flex;flex-direction:column;align-items:center;z-index:10;font-weight:bold;color:yellow;gap:5px}
-.title{font-size:20px}
-.vip{filter:drop-shadow(0 0 25px gold);}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GTAV: Shahzod Drift 2026</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Arial Black', sans-serif}
+        body{background:#000; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden}
+        .game{position:relative; width:95vw; max-width:900px; height:90vh; background:#111; border:5px solid #ffd700; overflow:hidden; border-radius:20px}
+        .road{position:absolute; width:100%; height:100%; background:#333; border-left:10px solid white; border-right:10px solid white}
+        .line{position:absolute; width:10px; height:100px; background:white; left:50%; transform:translateX(-50%); animation:moveLine 0.2s linear infinite}
+        @keyframes moveLine{from{top:-150px} to{top:100%}}
+        .car, .enemy{position:absolute; width:70px; height:110px; font-size:60px; display:flex; flex-direction:column; align-items:center; transition: transform 0.1s}
+        .car{bottom:40px; left:50%; transform:translateX(-50%); filter:drop-shadow(0 0 20px #ffd700)}
+        .car-name{font-size:12px; background:#ffd700; color:#000; padding:2px 6px; border-radius:4px; margin-top:-5px; font-weight:bold}
+        .drift-left{transform: translateX(-50%) rotate(-25deg) scale(1.1)}
+        .drift-right{transform: translateX(-50%) rotate(25deg) scale(1.1)}
+        .ui{position:absolute; top:20px; right:20px; color:#5f5; font-size:30px; text-shadow:2px 2px #000; z-index:10}
+        #startBtn{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:25px 50px; background:#ffd700; border:none; border-radius:15px; font-size:30px; cursor:pointer; z-index:100; box-shadow:0 0 30px #ffd700}
+        .controls{position:absolute; bottom:30px; width:100%; display:flex; justify-content:space-between; padding:0 50px; z-index:50}
+        .btn{width:110px; height:110px; border-radius:20px; border:4px solid #ffd700; background:rgba(0,0,0,0.7); color:#ffd700; font-size:50px; touch-action:none}
+    </style>
 </head>
 <body>
-<div class="game" id="game">
-<div class="road"></div>
-<div class="ui">
-<div class="title">Shahzod Xasanov Game</div>
-<div>Pul: <span id="money">0</span> 💰</div>
-</div>
-<div class="car vip" id="player">🚘<div class="car-name">NEXIA 3</div></div>
-<div class="enemy" id="enemy1"></div>
-<div class="enemy" id="enemy2"></div>
+<div class="game">
+    <div class="road">
+        <div class="line" style="animation-delay: 0s"></div>
+        <div class="line" style="animation-delay: 0.1s"></div>
+    </div>
+    <div class="ui">$ <span id="score">0</span></div>
+    <div id="player" class="car">🏎️<div class="car-name">GENTRA</div></div>
+    <div id="enemy" class="enemy" style="top:-200px">🚓<div class="car-name">GAI</div></div>
+    <button id="startBtn">START GAME</button>
+    <div class="controls">
+        <button class="btn" onmousedown="moveCar(-10)" ontouchstart="moveCar(-10)">⬅️</button>
+        <button class="btn" onmousedown="moveCar(10)" ontouchstart="moveCar(10)">➡️</button>
+    </div>
 </div>
 <script>
-const game=document.getElementById('game');
-const player=document.getElementById('player');
-const enemy1=document.getElementById('enemy1');
-const enemy2=document.getElementById('enemy2');
-const moneyEl=document.getElementById('money');let posX=150; let speed=20; // birdan tez yuradi let money=0; let started=false; let e1Y=-100,e2Y=-300; let e1X=40,e2X=260;
+    const player = document.getElementById('player');
+    const enemy = document.getElementById('enemy');
+    const scoreEl = document.getElementById('score');
+    const startBtn = document.getElementById('startBtn');
+    let posX = 50, enemyY = -200, enemyX = 50, score = 0, speed = 12, active = false;
+    const uzCars = [{i:'🚓',n:'GAI'},{i:'🚐',n:'DAMAS'},{i:'🚗',n:'NEXIA'},{i:'🚛',n:'ISUZU'}];
 
-const cars=[{i:'🚗',n:'Malibu'},{i:'🚘',n:'NEXIA 3'}];
+    function moveCar(val) {
+        if(active && posX + val > 10 && posX + val < 90) {
+            posX += val; player.style.left = posX + '%';
+            if(val < 0) player.classList.add('drift-left');
+            else player.classList.add('drift-right');
+            setTimeout(() => { player.classList.remove('drift-left'); player.classList.remove('drift-right'); }, 150);
+        }
+    }
 
-player.style.left=posX+'px';
-
-function randomCar(enemy){ let car=cars[Math.floor(Math.random()*cars.length)]; enemy.innerHTML=car.i+<div class="car-name">${car.n}</div>; }
-
-function loop(){ if(!started) return; e1Y+=speed; e2Y+=speed+2;
-
-if(e1Y>600){ e1Y=-100; e1X=[40,150,260][Math.floor(Math.random()*3)]; randomCar(enemy1); money++; }
-
-if(e2Y>600){ e2Y=-200; e2X=[40,150,260][Math.floor(Math.random()*3)]; randomCar(enemy2); }
-
-enemy1.style.top=e1Y+'px'; enemy1.style.left=e1X+'px'; enemy2.style.top=e2Y+'px'; enemy2.style.left=e2X+'px';
-
-moneyEl.innerText=money; requestAnimationFrame(loop); }
-
-// 🔥 START tugmasi ham, ekran bosilishi ham ishlaydi function startGame(){ if(started) return; started=true; randomCar(enemy1); randomCar(enemy2); loop(); }
-
-// START tugmasi yaratamiz const startBtn = document.createElement('button'); startBtn.innerText = 'START'; startBtn.style.position='absolute'; startBtn.style.top='50%'; startBtn.style.left='50%'; startBtn.style.transform='translate(-50%,-50%)'; startBtn.style.padding='15px 30px'; startBtn.style.background='lime'; startBtn.style.border='none'; startBtn.style.borderRadius='10px'; startBtn.style.fontWeight='bold'; startBtn.style.zIndex='20'; game.appendChild(startBtn);
-
-startBtn.addEventListener('click',()=>{ startBtn.style.display='none'; startGame(); });
-
-// Ekran bosilsa ham boshlanadi (faqat hali boshlanmagan bo‘lsa) game.addEventListener('click',()=>{ if(!started){ startBtn.style.display='none'; startGame(); } });
-
-game.addEventListener('touchstart',()=>{ if(!started){ startBtn.style.display='none'; startGame(); } });
-
-// Sensor bilan boshqarish let touchX=null; document.addEventListener('touchstart',e=>{ touchX=e.touches[0].clientX; });
-
-document.addEventListener('touchmove',e=>{ if(!started) return; let dx=e.touches[0].clientX-touchX; posX+=dx; if(posX<20)posX=20; if(posX>280)posX=280; player.style.left=posX+'px'; touchX=e.touches[0].clientX; }); </script>
-
-</body>
-</html>
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowLeft') moveCar(-5);
+        if(e.key === 'ArrowRight') moveCar(5);
+    });
