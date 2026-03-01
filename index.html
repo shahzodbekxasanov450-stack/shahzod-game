@@ -1,49 +1,66 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <title>SHAHZOD DRIFT</title>
-    <style>
-        body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #fff; font-family: sans-serif; }
-        #game { width: 400px; height: 500px; border: 5px solid #ff0; background: #222; position: relative; overflow: hidden; }
-        #score { position: absolute; top: 10px; left: 10px; font-size: 20px; color: #ff0; z-index: 10; }
-        #player { position: absolute; bottom: 80px; left: 175px; font-size: 50px; z-index: 5; }
-        #enemy { position: absolute; top: -100px; left: 175px; font-size: 50px; }
-        #startBtn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 30px; background: #ff0; border: none; font-weight: bold; cursor: pointer; z-index: 100; font-size: 20px; }
-        .line { position: absolute; width: 10px; height: 100px; background: #fff; left: 195px; animation: move 0.3s linear infinite; }
-        @keyframes move { from { top: -100px; } to { top: 500px; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shahzod Xasanov Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:#111;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;color:white;touch-action: none;}
+.game{position:relative;width:100%;max-width:400px;height:600px;background:#222;border:4px solid #444;overflow:hidden}
+.road{position:absolute;width:100%;height:100%;background:linear-gradient(#333 50%,#383838 50%);background-size:100% 80px;animation:move 0.3s linear infinite}
+@keyframes move{from{background-position-y:0}to{background-position-y:80px}}
+.car,.enemy{position:absolute;width:50px;height:80px;font-size:45px;display:flex;flex-direction:column;align-items:center;transition:left 0.1s;}
+.car{bottom:20px;left:150px;filter:drop-shadow(0 0 10px cyan);}
+.enemy{top:-100px}
+.car-name{font-size:10px;background:rgba(0,0,0,0.7);padding:2px 5px;border-radius:3px;margin-top:-5px}
+.ui{position:absolute;top:10px;width:100%;display:flex;flex-direction:column;align-items:center;z-index:10;font-weight:bold;color:yellow;gap:5px}
+#startBtn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:15px 30px;background:lime;border:none;border-radius:10px;cursor:pointer;font-weight:bold;z-index:20}
+.vip{filter:drop-shadow(0 0 25px gold);}
+.neon{box-shadow:0 0 10px cyan,0 0 20px cyan,0 0 30px cyan;}
+</style>
 </head>
 <body>
-    <div id="game">
-        <div id="score">Ball: 0</div>
-        <div class="line" style="top:0"></div>
-        <div class="line" style="top:200px"></div>
-        <div class="line" style="top:400px"></div>
-        <div id="player">🏎️</div>
-        <div id="enemy">🚓</div>
-        <button id="startBtn" onclick="gameStart()">START</button>
-    </div>
-    <script>
-        let px = 175, ey = -100, ex = 175, sc = 0, live = false;
-        const p = document.getElementById('player'), e = document.getElementById('enemy'), s = document.getElementById('score'), b = document.getElementById('startBtn');
-        function gameStart() { live = true; b.style.display = 'none'; loop(); }
-        document.onkeydown = (ev) => {
-            if (ev.key === 'ArrowLeft' && px > 0) px -= 40;
-            if (ev.key === 'ArrowRight' && px < 350) px += 40;
-            p.style.left = px + 'px';
-        };
-        function loop() {
-            if (!live) return;
-            ey += 8;
-            if (ey > 500) { ey = -100; ex = Math.random() * 320; sc += 10; s.innerText = "Ball: " + sc; }
-            e.style.top = ey + 'px'; e.style.left = ex + 'px';
-            let r1 = p.getBoundingClientRect(), r2 = e.getBoundingClientRect();
-            if (!(r1.right < r2.left  r1.left > r2.right  r1.bottom < r2.top || r1.top > r2.bottom)) {
-                alert("AVARIYA! Ballingiz: " + sc); location.reload();
-            }
-            requestAnimationFrame(loop);
-        }
-    </script>
+<div class="game" id="game">
+<div class="road"></div>
+<div class="ui">
+<div style="font-size:18px; font-weight:bold;">Shahzod Xasanov Game</div>
+<div>Pul: <span id="money">0</span> 💰</div>
+<div>Level: <span id="level">1</span></div>
+</div>
+<div class="car" id="player">🚗<div class="car-name">Malibu</div></div>
+<div class="enemy" id="enemy1"></div>
+<div class="enemy" id="enemy2"></div>
+<button id="startBtn">START</button>
+</div>
+<script>
+const player=document.getElementById('player');
+const enemy1=document.getElementById('enemy1');
+const enemy2=document.getElementById('enemy2');
+const moneyEl=document.getElementById('money');
+const levelEl=document.getElementById('level');
+const startBtn=document.getElementById('startBtn');
+let posX=150;
+let speed=5;
+let money=0;
+let level=1;
+let active=false;
+let e1Y=-100,e2Y=-300;
+let e1X=40,e2X=260;
+const uzCars=[{i:'🚗',n:'Malibu'},{i:'🚘',n:'NEXIA 3'}];
+player.style.left=posX+'px';
+function randomCar(enemy){let car=uzCars[Math.floor(Math.random()*uzCars.length)];enemy.innerHTML=car.i+<div class="car-name">${car.n}</div>;}
+function updateEnemy(enemy, y, x){enemy.style.top=y+'px';enemy.style.left=x+'px';}
+function gameLoop(){if(!active)return;e1Y+=speed;e2Y+=speed+1;if(e1Y>600){e1Y=-100;e1X=[40,150,260][Math.floor(Math.random()*3)];randomCar(enemy1);money++;}if(e2Y>600){e2Y=-200;e2X=[40,150,260][Math.floor(Math.random()*3)];randomCar(enemy2);}moneyEl.innerText=money;levelEl.innerText=level;updateEnemy(enemy1,e1Y,e1X);updateEnemy(enemy2,e2Y,e2X);requestAnimationFrame(gameLoop);}
+startBtn.onclick=()=>{
+  active=true;
+  startBtn.style.display='none';
+  randomCar(enemy1);
+  randomCar(enemy2);
+  gameLoop();
+  // Bir bosish bilan avtomatik o‘tish effekti
+  speed=10;
+};
+document.addEventListener('touchstart',e=>{posX=e.touches[0].clientX-25; if(posX<20) posX=20;if(posX>280) posX=280;player.style.left=posX+'px';});
+</script>
 </body>
 </html>
