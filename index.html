@@ -1,0 +1,22 @@
+function gameLoop() {
+        if(!active) return;
+        enemyY += speed;
+        if(enemyY > window.innerHeight) {
+            enemyY = -200;
+            enemyX = 15 + Math.random() * 70;
+            let res = uzCars[Math.floor(Math.random()*uzCars.length)];
+            enemy.innerHTML = res.i + <div class="car-name">${res.n}</div>;
+            enemy.style.left = enemyX + '%';
+            score += 100; speed += 0.2; scoreEl.innerText = score;
+        }
+        enemy.style.top = enemyY + 'px';
+        let p = player.getBoundingClientRect(); let e = enemy.getBoundingClientRect();
+        if (!(p.right < e.left  p.left > e.right  p.bottom < e.top || p.top > e.bottom)) {
+            alert("BUSTED! Ballingiz: $" + score); location.reload();
+        }
+        requestAnimationFrame(gameLoop);
+    }
+    startBtn.onclick = () => { active = true; startBtn.style.display = 'none'; gameLoop(); }
+</script>
+</body>
+</html>
