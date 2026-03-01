@@ -2,75 +2,66 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GTAV: Shahzod Drift</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SHAHZOD DRIFT</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-        body{background:#000; display:flex; justify-content:center; align-items:center; height:100vh; overflow:hidden; color:white}
-        .game{position:relative; width:95vw; max-width:600px; height:85vh; background:#222; border:5px solid #ffd700; overflow:hidden; border-radius:15px}
-        .road{position:absolute; width:100%; height:100%; background:linear-gradient(#333 50%, #3a3a3a 50%); background-size:100% 100px; animation:move 0.2s linear infinite}
-        @keyframes move{from{background-position-y:0} to{background-position-y:100px}}
-        .car, .enemy{position:absolute; width:60px; height:100px; font-size:50px; display:flex; flex-direction:column; align-items:center}
-        .car{bottom:20px; left:45%; filter:drop-shadow(0 0 15px #ffd700)}
-        .enemy{top:-120px}
-        .ui{position:absolute; top:15px; width:100%; display:flex; justify-content:space-around; z-index:10; font-size:20px; color:#ff0}
-        #startBtn{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px 40px; background:#ffd700; border:none; border-radius:10px; cursor:pointer; font-weight:bold; font-size:20px; z-index:20}
-        .controls{position:absolute; bottom:20px; width:100%; display:flex; justify-content:space-between; padding:0 30px}
-        .btn{width:80px; height:80px; border-radius:50%; border:2px solid #fff; background:rgba(255,255,255,0.2); color:#fff; font-size:40px}
+        body{background:#111; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; overflow:hidden; font-family:sans-serif; color:#fff}
+        #game{width:90vw; max-width:400px; height:80vh; background:#222; border:4px solid #ff0; position:relative; overflow:hidden; border-radius:15px}
+        #score{position:absolute; top:10px; width:100%; text-align:center; font-size:24px; color:#ff0; z-index:10}
+        #player, #enemy{position:absolute; font-size:50px; width:50px; text-align:center}
+        #player{bottom:120px; left:175px; z-index:5}
+        #enemy{top:-100px; left:175px}
+        .road-line{position:absolute; width:10px; height:100px; background:#fff; left:50%; transform:translateX(-50%); animation:move 0.3s linear infinite}
+        @keyframes move{from{top:-150px} to{top:100%}}
+        #startBtn{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:20px 40px; font-size:25px; background:#ff0; border:none; border-radius:10px; font-weight:bold; cursor:pointer; z-index:100}
+        .controls{position:absolute; bottom:20px; width:100%; display:flex; justify-content:space-around; z-index:50}
+        .btn{width:80px; height:80px; background:rgba(255,255,255,0.2); border:3px solid #fff; border-radius:50%; color:#fff; font-size:40px; display:flex; align-items:center; justify-content:center; touch-action:none}
     </style>
 </head>
 <body>
-<div class="game">
-    <div class="road"></div>
-    <div class="ui"><div>Ball: <span id="score">0</span></div><div>SHAHZOD DRIFT</div></div>
-    <div id="player" class="car" style="left:150px">🏎️</div>
-    <div id="enemy" class="enemy" style="top:-120px; left:150px">🚓</div>
-    <button id="startBtn">START</button>
-    <div class="controls">
-        <button class="btn" onclick="moveCar(-50)">⬅️</button>
-        <button class="btn" onclick="moveCar(50)">➡️</button>
+    <div id="game">
+        <div id="score">Ball: 0</div>
+        <div class="road-line" style="top:0"></div>
+        <div class="road-line" style="top:200px"></div>
+        <div class="road-line" style="top:400px"></div>
+        <div id="player">🏎️</div>
+        <div id="enemy">🚓</div>
+        <button id="startBtn">START</button>
+        <div class="controls">
+            <div class="btn" id="L">⬅️</div>
+            <div class="btn" id="R">➡️</div>
+        </div>
     </div>
-</div>
 <script>
-    const player = document.getElementById('player');
-    const enemy = document.getElementById('enemy');
-    const scoreEl = document.getElementById('score');
-    const startBtn = document.getElementById('startBtn');
-    let posX = 150, enemyY = -120, enemyX = 150, score = 0, speed = 8, active = false;
+    const player = document.getElementById('player'), enemy = document.getElementById('enemy'), scoreEl = document.getElementById('score'), startBtn = document.getElementById('startBtn');
+    let px = 175, ey = -100, ex = 175, sc = 0, active = false, speed = 10;
 
-    function moveCar(val) {
-        if(active) {
-            posX += val;
-            if(posX < 0) posX = 0;
-            if(posX > 300) posX = 300;
-            player.style.left = posX + 'px';
-        }
-    }
+    function move(val) { if(active) { px += val; if(px<0) px=0; if(px>350) px=350; player.style.left = px+'px'; } }
+    
+    // Tugmalar ishlashi uchun:
+    document.getElementById('L').addEventListener('touchstart', (e) => { e.preventDefault(); move(-40); });
+    document.getElementById('R').addEventListener('touchstart', (e) => { e.preventDefault(); move(40); });
+    document.getElementById('L').onclick = () => move(-40);
+    document.getElementById('R').onclick = () => move(40);
 
-    document.addEventListener('keydown', (e) => {
-        if(e.key === 'ArrowLeft') moveCar(-50);
-        if(e.key === 'ArrowRight') moveCar(50);
-    });
+    startBtn.onclick = () => {
+        active = true;
+        startBtn.style.display = 'none';
+        gameLoop();
+    };
 
     function gameLoop() {
         if(!active) return;
-        enemyY += speed;
-        if(enemyY > 600) {
-            enemyY = -120;
-            enemyX = Math.random() * 250;
-            enemy.style.left = enemyX + 'px';
-            score += 100; speed += 0.2; scoreEl.innerText = score;
-        }
-        enemy.style.top = enemyY + 'px';
-        let p = player.getBoundingClientRect();
-        let e = enemy.getBoundingClientRect();
-        if (!(p.right < e.left  p.left > e.right  p.bottom < e.top || p.top > e.bottom)) {
-            alert("AVARIYA! Ballingiz: $" + score);
-            location.reload();
+        ey += speed;
+        if(ey > 600) { ey = -100; ex = Math.random()*330; sc += 10; scoreEl.innerText = "Ball: " + sc; speed += 0.2; }
+        enemy.style.top = ey + 'px'; enemy.style.left = ex + 'px';
+        
+        let pR = player.getBoundingClientRect(), eR = enemy.getBoundingClientRect();
+        if(!(pR.right < eR.left  pR.left > eR.right  pR.bottom < eR.top || pR.top > eR.bottom)) {
+            alert("GENTRA URILDI! Ball: " + sc); location.reload();
         }
         requestAnimationFrame(gameLoop);
     }
-    startBtn.onclick = () => { active = true; startBtn.style.display = 'none'; gameLoop(); }
 </script>
 </body>
 </html>
