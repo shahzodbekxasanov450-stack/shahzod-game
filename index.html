@@ -2,140 +2,105 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Shahzod Game</title>
+<title>Shahzod Drift Uzbekistan</title>
 <style>
 body{
   margin:0;
-  text-align:center;
-  background:black;
+  background:#111;
   color:white;
+  text-align:center;
   font-family:sans-serif;
 }
-h1{
-  color:yellow;
-}
 canvas{
-  background:#222;
-  display:none;
-  margin-top:20px;
+  background:#333;
+  margin-top:10px;
+  touch-action:none;
 }
 button{
-  padding:10px 20px;
-  font-size:18px;
-  margin:10px;
-  cursor:pointer;
+  padding:8px 15px;
+  margin:5px;
+  font-size:14px;
+}
+#ui{
+  margin-top:5px;
 }
 </style>
 </head>
 <body>
 
-<h1>🔥 SHAHZOD GAME 🔥</h1>
-<p id="msg">Shahzod sen eng zoʻr oʻyinchisan 😎</p>
+<h2>🔥 SHAHZOD DRIFT UZBEKISTAN 🔥</h2>
+<div id="ui">
+Pul: <span id="money">0</span> 💰
+<select id="carSelect">
+<option>Cobalt</option>
+<option>Nexia 3</option>
+<option>Gentra</option>
+<option>Damas</option>
+</select>
+<button onclick="tune()">Tuning (+speed) 100💰</button>
+</div>
 
-<button id="startBtn">START</button>
-<button id="restartBtn" style="display:none;">RESTART</button>
-
-<br>
-<canvas id="gameCanvas" width="400" height="500"></canvas>
+<canvas id="game" width="400" height="500"></canvas>
 
 <script>
-let canvas = document.getElementById("gameCanvas");
+let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
 
-let player = {x:180, y:400, w:40, h:70};
-let enemies = [];
-let score = 0;
-let gameRunning = false;
+let money = 0;
+let speed = 4;
+let angle = 0;
+let driftPower = 0;
 
-let left=false, right=false;
+let car = {x:200,y:400,w:40,h:70};
 
-document.getElementById("startBtn").onclick = function(){
-  canvas.style.display="block";
-  this.style.display="none";
-  document.getElementById("restartBtn").style.display="inline-block";
-  document.getElementById("msg").innerText="🔥 Shahzod o'yinni boshladi!";
-  gameRunning = true;
-  score = 0;
-  enemies = [];
-  gameLoop();
-}
+let left=false,right=false;
 
-document.getElementById("restartBtn").onclick = function(){
-  player.x = 180;
-  score = 0;
-  enemies = [];
-  gameRunning = true;
-  gameLoop();
-}
-
-document.addEventListener("keydown", function(e){
-  if(e.key==="ArrowLeft") left=true;
-  if(e.key==="ArrowRight") right=true;
+document.addEventListener("keydown",e=>{
+ if(e.key=="ArrowLeft") left=true;
+ if(e.key=="ArrowRight") right=true;
+});
+document.addEventListener("keyup",e=>{
+ if(e.key=="ArrowLeft") left=false;
+ if(e.key=="ArrowRight") right=false;
 });
 
-document.addEventListener("keyup", function(e){
-  if(e.key==="ArrowLeft") left=false;
-  if(e.key==="ArrowRight") right=false;
+canvas.addEventListener("touchstart",e=>{
+ if(e.touches[0].clientX<window.innerWidth/2) left=true;
+ else right=true;
+});
+canvas.addEventListener("touchend",e=>{
+ left=false; right=false;
 });
 
-function drawPlayer(){
-  ctx.fillStyle="red";
-  ctx.fillRect(player.x, player.y, player.w, player.h);
+function tune(){
+ if(money>=100){
+   money-=100;
+   speed+=1;
+ }
 }
 
-function drawEnemies(){
-  ctx.fillStyle="lime";
-  enemies.forEach(e=>{
-    ctx.fillRect(e.x,e.y,e.w,e.h);
-  });
+function drawRoad(){
+ ctx.fillStyle="#555";
+ ctx.fillRect(0,0,400,500);
+
+ ctx.strokeStyle="white";
+ ctx.setLineDash([20,15]);
+ ctx.beginPath();
+ ctx.moveTo(200,0);
+ ctx.lineTo(200,500);
+ ctx.stroke();
+ ctx.setLineDash([]);
+}
+
+function drawCar(){
+ ctx.save();
+ ctx.translate(car.x,car.y);
+ ctx.rotate(angle);
+ ctx.fillStyle="red";
+ ctx.fillRect(-20,-35,40,70);
+ ctx.restore();
 }
 
 function update(){
-  if(left && player.x>0) player.x-=6;
-  if(right && player.x<canvas.width-player.w) player.x+=6;
-
-  if(Math.random()<0.03){
-    enemies.push({x:Math.random()*360,y:-70,w:40,h:70});
-  }
-
-  enemies.forEach((e,index)=>{
-    e.y+=4;
-
-    if(
-      player.x < e.x+e.w &&
-      player.x+player.w > e.x &&
-      player.y < e.y+e.h &&
-      player.y+player.h > e.y
-    ){
-      gameRunning=false;
-      document.getElementById("msg").innerText="💥 Game Over Shahzod! Ochko: "+score;
-    }
-
-    if(e.y>500){
-      enemies.splice(index,1);
-      score++;
-    }
-  });
-}
-
-function drawScore(){
-  ctx.fillStyle="white";
-  ctx.font="20px Arial";
-  ctx.fillText("Score: "+score,10,25);
-}
-
-function gameLoop(){
-  if(!gameRunning) return;
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  update();
-  drawPlayer();
-  drawEnemies();
-  drawScore();
-
-  requestAnimationFrame(gameLoop);
-}
-</script>
-
-</body>
-</html>
+ if(left){
+   car
