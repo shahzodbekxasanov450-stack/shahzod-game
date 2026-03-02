@@ -1,70 +1,141 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHAHZOD GENTRA DRIFT</title>
-    <style>
-        body { margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; overflow: hidden; }
-        #gameArea { width: 320px; height: 480px; background: #333; border: 4px solid #ff0; position: relative; overflow: hidden; }
-        #player { width: 50px; height: 80px; background: #f00; position: absolute; bottom: 10px; left: 135px; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
-        #enemy { width: 50px; height: 80px; background: #00f; position: absolute; top: -100px; left: 135px; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 40px; }
-        #score { position: absolute; top: 10px; left: 10px; font-size: 20px; color: #ff0; }
-        #startBtn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 30px; font-size: 20px; background: #ff0; border: none; cursor: pointer; color: #000; font-weight: bold; z-index: 10; }
-    </style>
+<meta charset="UTF-8">
+<title>Shahzod Game</title>
+<style>
+body{
+  margin:0;
+  text-align:center;
+  background:black;
+  color:white;
+  font-family:sans-serif;
+}
+h1{
+  color:yellow;
+}
+canvas{
+  background:#222;
+  display:none;
+  margin-top:20px;
+}
+button{
+  padding:10px 20px;
+  font-size:18px;
+  margin:10px;
+  cursor:pointer;
+}
+</style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="score">Ball: 0</div>
-        <div id="player">🏎️</div>
-        <div id="enemy">🚓</div>
-        <button id="startBtn">START GAME</button>
-    </div>
 
-    <script>
-        const player = document.getElementById('player');
-        const enemy = document.getElementById('enemy');
-        const scoreDisplay = document.getElementById('score');
-        const startBtn = document.getElementById('startBtn');
-        let score = 0;
-        let playerX = 135;
-        let enemyY = -100;
-        let enemyX = 135;
-        let isGameRunning = false;
+<h1>🔥 SHAHZOD GAME 🔥</h1>
+<p id="msg">Shahzod sen eng zoʻr oʻyinchisan 😎</p>
 
-        startBtn.addEventListener('click', () => {
-            isGameRunning = true;
-            startBtn.style.display = 'none';
-            gameLoop();
-        });
+<button id="startBtn">START</button>
+<button id="restartBtn" style="display:none;">RESTART</button>
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && playerX > 0) playerX -= 20;
-            if (e.key === 'ArrowRight' && playerX < 270) playerX += 20;
-            player.style.left = playerX + 'px';
-        });
+<br>
+<canvas id="gameCanvas" width="400" height="500"></canvas>
 
-        function gameLoop() {
-            if (!isGameRunning) return;
-            enemyY += 5;
-            if (enemyY > 480) {
-                enemyY = -100;
-                enemyX = Math.floor(Math.random() * 270);
-                score += 10;
-                scoreDisplay.innerText = "Ball: " + score;
-            }
-            enemy.style.top = enemyY + 'px';
-            enemy.style.left = enemyX + 'px';
+<script>
+let canvas = document.getElementById("gameCanvas");
+let ctx = canvas.getContext("2d");
 
-            let pRect = player.getBoundingClientRect();
-            let eRect = enemy.getBoundingClientRect();
+let player = {x:180, y:400, w:40, h:70};
+let enemies = [];
+let score = 0;
+let gameRunning = false;
 
-            if (!(pRect.right < eRect.left  pRect.left > eRect.right  pRect.bottom < eRect.top || pRect.top > eRect.bottom)) {
-                alert("O'yin tugadi! Ballingiz: " + score);
-                location.reload();
-            }
-            requestAnimationFrame(gameLoop);
-        }
-    </script>
+let left=false, right=false;
+
+document.getElementById("startBtn").onclick = function(){
+  canvas.style.display="block";
+  this.style.display="none";
+  document.getElementById("restartBtn").style.display="inline-block";
+  document.getElementById("msg").innerText="🔥 Shahzod o'yinni boshladi!";
+  gameRunning = true;
+  score = 0;
+  enemies = [];
+  gameLoop();
+}
+
+document.getElementById("restartBtn").onclick = function(){
+  player.x = 180;
+  score = 0;
+  enemies = [];
+  gameRunning = true;
+  gameLoop();
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.key==="ArrowLeft") left=true;
+  if(e.key==="ArrowRight") right=true;
+});
+
+document.addEventListener("keyup", function(e){
+  if(e.key==="ArrowLeft") left=false;
+  if(e.key==="ArrowRight") right=false;
+});
+
+function drawPlayer(){
+  ctx.fillStyle="red";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+}
+
+function drawEnemies(){
+  ctx.fillStyle="lime";
+  enemies.forEach(e=>{
+    ctx.fillRect(e.x,e.y,e.w,e.h);
+  });
+}
+
+function update(){
+  if(left && player.x>0) player.x-=6;
+  if(right && player.x<canvas.width-player.w) player.x+=6;
+
+  if(Math.random()<0.03){
+    enemies.push({x:Math.random()*360,y:-70,w:40,h:70});
+  }
+
+  enemies.forEach((e,index)=>{
+    e.y+=4;
+
+    if(
+      player.x < e.x+e.w &&
+      player.x+player.w > e.x &&
+      player.y < e.y+e.h &&
+      player.y+player.h > e.y
+    ){
+      gameRunning=false;
+      document.getElementById("msg").innerText="💥 Game Over Shahzod! Ochko: "+score;
+    }
+
+    if(e.y>500){
+      enemies.splice(index,1);
+      score++;
+    }
+  });
+}
+
+function drawScore(){
+  ctx.fillStyle="white";
+  ctx.font="20px Arial";
+  ctx.fillText("Score: "+score,10,25);
+}
+
+function gameLoop(){
+  if(!gameRunning) return;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  update();
+  drawPlayer();
+  drawEnemies();
+  drawScore();
+
+  requestAnimationFrame(gameLoop);
+}
+</script>
+
 </body>
 </html>
