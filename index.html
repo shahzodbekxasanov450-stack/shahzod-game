@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Shahzod Drift Uzbekistan</title>
+<title>Shahzod Drift Arena</title>
 <style>
 body{
   margin:0;
@@ -12,48 +12,54 @@ body{
   font-family:sans-serif;
 }
 canvas{
-  background:#333;
+  background:#222;
+  display:none;
   margin-top:10px;
   touch-action:none;
 }
 button{
-  padding:8px 15px;
-  margin:5px;
-  font-size:14px;
+  padding:10px 20px;
+  margin:10px;
+  font-size:16px;
 }
 #ui{
-  margin-top:5px;
+  display:none;
 }
 </style>
 </head>
 <body>
 
-<h2>🔥 SHAHZOD DRIFT UZBEKISTAN 🔥</h2>
+<h2>🔥 SHAHZOD DRIFT ARENA 🔥</h2>
+
+<button id="startBtn">START</button>
+
 <div id="ui">
 Pul: <span id="money">0</span> 💰
-<select id="carSelect">
-<option>Cobalt</option>
-<option>Nexia 3</option>
-<option>Gentra</option>
-<option>Damas</option>
-</select>
-<button onclick="tune()">Tuning (+speed) 100💰</button>
+<button onclick="tune()">Tuning +Speed (100💰)</button>
 </div>
 
-<canvas id="game" width="400" height="500"></canvas>
+<canvas id="game" width="400" height="600"></canvas>
 
 <script>
-let canvas = document.getElementById("game");
-let ctx = canvas.getContext("2d");
+let canvas=document.getElementById("game");
+let ctx=canvas.getContext("2d");
 
-let money = 0;
-let speed = 4;
-let angle = 0;
-let driftPower = 0;
+let money=0;
+let speed=4;
+let angle=0;
+let drift=0;
 
-let car = {x:200,y:400,w:40,h:70};
-
+let car={x:200,y:300,w:40,h:70};
+let bots=[];
 let left=false,right=false;
+let gameRunning=false;
+
+document.getElementById("startBtn").onclick=function(){
+  this.style.display="none";
+  document.getElementById("ui").style.display="block";
+  canvas.style.display="block";
+  gameRunning=true;
+}
 
 document.addEventListener("keydown",e=>{
  if(e.key=="ArrowLeft") left=true;
@@ -65,42 +71,4 @@ document.addEventListener("keyup",e=>{
 });
 
 canvas.addEventListener("touchstart",e=>{
- if(e.touches[0].clientX<window.innerWidth/2) left=true;
- else right=true;
-});
-canvas.addEventListener("touchend",e=>{
- left=false; right=false;
-});
-
-function tune(){
- if(money>=100){
-   money-=100;
-   speed+=1;
- }
-}
-
-function drawRoad(){
- ctx.fillStyle="#555";
- ctx.fillRect(0,0,400,500);
-
- ctx.strokeStyle="white";
- ctx.setLineDash([20,15]);
- ctx.beginPath();
- ctx.moveTo(200,0);
- ctx.lineTo(200,500);
- ctx.stroke();
- ctx.setLineDash([]);
-}
-
-function drawCar(){
- ctx.save();
- ctx.translate(car.x,car.y);
- ctx.rotate(angle);
- ctx.fillStyle="red";
- ctx.fillRect(-20,-35,40,70);
- ctx.restore();
-}
-
-function update(){
- if(left){
-   car
+ if(e.touches[0].clientX<window
